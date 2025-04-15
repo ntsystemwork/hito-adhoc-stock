@@ -82,19 +82,22 @@ class StockWarehouseOrderpoint(models.Model):
             )
         return super().write(vals)
 
-    def _get_orderpoint_action(self):
-        action = super()._get_orderpoint_action()
-        action["context"] = {
-            **action["context"],
-            "active_test": False,
-        }
-        action["domain"] = expression.AND(
-            [
-                action.get("domain", "[]"),
-                [("active_product", "=", True)],
-            ]
-        )
-        return action
+    def _get_orderpoint_action(self): 
+        action = super()._get_orderpoint_action() 
+        action["context"] = { 
+            **action.get("context", {}), 
+            "active_test": False, 
+        } 
+        base_domain = action.get("domain") or [] 
+
+        if not isinstance(base_domain, (list, tuple)): 
+            base_domain = [] 
+        action["domain"] = expression.AND([ 
+            base_domain, 
+            [("active_product", "=", True)], 
+        ]) 
+
+        return action 
 
     def _change_review_toggle_negative(self):
         self.reviewed = False
